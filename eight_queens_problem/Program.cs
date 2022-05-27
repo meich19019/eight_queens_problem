@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace eight_queens_problem
 {
@@ -6,28 +8,48 @@ namespace eight_queens_problem
     {
         static void Main(string[] args)
         {
-            Chessboard chessboard = new Chessboard(4);
-            chessboard.PrintChessboard();
-            chessboard.PutChess(new Chess(new Position(2, 3)));
-            chessboard.PrintChessboard();
-            foreach (Position safePosition in chessboard.SafePositions)
+            PrintNQueens(8);
+        }
+
+        public static void PrintNQueens(int n)
+        {
+            Dictionary<int, List<Chessboard>> totalChessboard = new Dictionary<int, List<Chessboard>>();
+            totalChessboard[0] = new List<Chessboard>();
+            totalChessboard[0].Add(new Chessboard(n));
+            for (int i = 1; i < n + 1; i++)
             {
-                Console.WriteLine(safePosition.X + ", " + safePosition.Y);
+                totalChessboard[i] = new List<Chessboard>();
+                foreach (Chessboard chessboard in totalChessboard[i - 1])
+                {
+                    if (chessboard.SafePositions.Any())
+                    {
+                        foreach (string safePosition in chessboard.SafePositions)
+                        {
+                            int x = int.Parse(safePosition.Split(',')[0]);
+                            if (x == i - 1)
+                            {
+                                Chessboard newChessboard = new Chessboard(chessboard);
+                                newChessboard.PutChess(new Queen(safePosition));
+                                totalChessboard[i].Add(newChessboard);
+                            }
+                        }
+                    }
+                }
             }
-            chessboard.PutChess(new Chess(new Position(3, 1)));
-            chessboard.PrintChessboard();
-            foreach (Position safePosition in chessboard.SafePositions)
+
+            HashSet<string> successChessboards = new HashSet<string>();
+            foreach (Chessboard successChessboard in totalChessboard[n])
             {
-                Console.WriteLine(safePosition.X + ", " + safePosition.Y);
+                successChessboards.Add(successChessboard.GetChessboard());
             }
-            chessboard.PutChess(new Chess(new Position(1, 0)));
-            chessboard.PrintChessboard();
-            foreach (Position safePosition in chessboard.SafePositions)
+
+            int index = 0;
+            foreach (string successChessboard in successChessboards)
             {
-                Console.WriteLine(safePosition.X + ", " + safePosition.Y);
+                index++;
+                Console.WriteLine(index);
+                Console.WriteLine(successChessboard);
             }
-            chessboard.PutChess(new Chess(new Position(0, 2)));
-            chessboard.PrintChessboard();
         }
     }
 }
